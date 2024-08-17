@@ -90,7 +90,7 @@ This command will move the starter code to the **app-example** directory and cre
 
 Below are some screenshots of the **Sticker Smash** app:
 
-<table style="padding-left:10px">
+<table style="padding-left:80px">
   <tr>
     <td><img src="./assets/images/ss1.jpg" alt="Home Screen" width="300"/></td>
     <td><img src="./assets/images/ss2.jpg" alt="Home Screen" width="300"/></td>
