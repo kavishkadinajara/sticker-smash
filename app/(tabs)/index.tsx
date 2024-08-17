@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import ImageViewer from '@/components/ImageViewer';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Platform, Alert } from 'react-native';
 import Button from '@/components/Buttons';
 import IconButton from '@/components/IconButton';
 import CircleButton from '@/components/CircleButton';
@@ -21,7 +21,7 @@ export default function App() {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [pickedEmoji, setPickedEmoji] = useState<any>(null);
   const [status, requestPermission] = MediaLibrary.usePermissions();
-  const imageRef = useRef<View | null>(null);
+ const imageRef = useRef<View>(null);
 
   // Request permissions for media library access
   if (status?.granted === false) {
@@ -38,7 +38,7 @@ export default function App() {
       setSelectedImage(result.assets[0].uri);
       setShowAppOption(true);
     } else {
-      alert('You did not select any image');
+      Alert.alert('No image selected', 'You did not select any image');
     }
   };
 
@@ -57,21 +57,42 @@ export default function App() {
   };
 
   const onSaveImageAsync = async () => {
-    try {
-      // Check if imageRef is assigned
-      if (imageRef.current) {
-        const uri = await captureRef(imageRef, {
-          height: 440,
-          quality: 1,
-        });
-
-        if (uri) {
-          await MediaLibrary.saveToLibraryAsync(uri);
-          alert('Image saved to gallery!');
+    if (Platform.OS !== 'web') {
+      try {
+        // Check if imageRef is assigned
+        if (imageRef.current) {
+          const uri = await captureRef(imageRef, {
+            height: 440,
+            quality: 1,
+          });
+  
+          if (uri) {
+            await MediaLibrary.saveToLibraryAsync(uri);
+            Alert.alert('Success', 'Image saved to gallery!');
+          }
         }
+      } catch (error) {
+        console.error('Failed to save the image: ', error);
+        Alert.alert('Error', 'Failed to save the image');
       }
-    } catch (error) {
-      console.error('Failed to save the image: ', error);
+    } else {
+      try {
+        const domToImage = (await import('dom-to-image')).default; // Dynamically import for web
+        if (imageRef.current instanceof HTMLElement) {
+          const dataUrl = await domToImage.toJpeg(imageRef.current, {
+            quality: 0.95,
+            width: 320,
+            height: 440,
+          });
+          let link = document.createElement('a');
+          link.download = 'sticker-smash.jpeg';
+          link.href = dataUrl;
+          link.click();
+        }
+      } catch (e) {
+        console.error('Failed to capture image on web:', e);
+        Alert.alert('Error', 'Failed to save the image on web');
+      }
     }
   };
 
@@ -100,7 +121,7 @@ export default function App() {
       <EmojiPicker isVisible={isModalVisible} onClose={onModalClose}>
         <EmojiList onSelect={setPickedEmoji} onCloseModal={onModalClose}></EmojiList>
       </EmojiPicker>
-      <StatusBar style="auto" />
+      <StatusBar style="light" />
     </GestureHandlerRootView>
   );
 }
