@@ -91,13 +91,11 @@ Below are some screenshots of the **Sticker Smash** app:
 
 
 <img src="./assets/images/ss1.jpg" alt="Home Screen" width="300"/>
+<img src="./assets/images/ss2.jpg" alt="Home Screen" width="300"/>
 
+<img src="./assets/images/ss3.jpg" alt="Home Screen" width="300"/>
+<img src="./assets/images/ss4.jpg" alt="Home Screen" width="300"/>
 
-
-!(assets/screenshots/profile-screen.png)
-
-
-!(assets/screenshots/settings-screen.png)
 
 
 ## Learn More
