@@ -12,6 +12,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as MediaLibrary from 'expo-media-library';
 import { captureRef } from 'react-native-view-shot';
+import React from 'react';
 
 const PlaceholderImage = require('@/assets/images/tea.jpg');
 

@@ -1,3 +1,4 @@
+import React from 'react';
 import { StyleSheet, Image, ImageSourcePropType } from 'react-native';
 
 interface ImageViewerProps {
