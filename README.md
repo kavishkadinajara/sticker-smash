@@ -84,6 +84,20 @@ npm run reset-project
 
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
+## Screenshots
+
+Below are some screenshots of the **Sticker Smash** app:
+
+
+!(./assets/images/ss1.jpg)
+
+
+!(assets/screenshots/profile-screen.png)
+
+
+!(assets/screenshots/settings-screen.png)
+
+
 ## Learn More
 
 To learn more about developing your project with Expo, explore the following resources:
