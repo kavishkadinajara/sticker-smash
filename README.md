@@ -89,7 +89,9 @@ This command will move the starter code to the **app-example** directory and cre
 Below are some screenshots of the **Sticker Smash** app:
 
 
-![Home Screen](./assets/images/ss1.jpg)
+
+<img src="./assets/images/ss1.jpg" alt="Home Screen" width="300"/>
+
 
 
 !(assets/screenshots/profile-screen.png)
