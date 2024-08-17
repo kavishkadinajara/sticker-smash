@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import ImageViewer from '@/components/ImageViewer';
 import { StyleSheet, View } from 'react-native';
@@ -10,6 +10,8 @@ import EmojiList from '@/components/EmojiList';
 import EmojiSticker from '@/components/EmojiSticker';
 import * as ImagePicker from 'expo-image-picker';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import * as MediaLibrary from 'expo-media-library';
+import { captureRef } from 'react-native-view-shot';
 
 const PlaceholderImage = require('@/assets/images/tea.jpg');
 
@@ -17,7 +19,14 @@ export default function App() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [showAppOption, setShowAppOption] = useState<boolean>(false);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const [pickedEmoji, setPickedEmoji] = useState(null);
+  const [pickedEmoji, setPickedEmoji] = useState<any>(null);
+  const [status, requestPermission] = MediaLibrary.usePermissions();
+  const imageRef = useRef<View | null>(null);
+
+  // Request permissions for media library access
+  if (status?.granted === false) {
+    requestPermission();
+  }
 
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -35,6 +44,7 @@ export default function App() {
 
   const onReset = () => {
     setSelectedImage(null);
+    setPickedEmoji(null);
     setShowAppOption(false);
   };
 
@@ -47,15 +57,31 @@ export default function App() {
   };
 
   const onSaveImageAsync = async () => {
-    alert('Save image');
-    // Implement the save functionality here
+    try {
+      // Check if imageRef is assigned
+      if (imageRef.current) {
+        const uri = await captureRef(imageRef, {
+          height: 440,
+          quality: 1,
+        });
+
+        if (uri) {
+          await MediaLibrary.saveToLibraryAsync(uri);
+          alert('Image saved to gallery!');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to save the image: ', error);
+    }
   };
 
   return (
     <GestureHandlerRootView style={styles.container}>
       <View style={styles.imageContainer}>
-        <ImageViewer placeholderImageSource={PlaceholderImage} selectedImage={selectedImage} />
-        {pickedEmoji && <EmojiSticker imageSize={40} stickerSource={pickedEmoji} />}
+        <View ref={imageRef} collapsable={false} style={styles.imageWrapper}>
+          <ImageViewer placeholderImageSource={PlaceholderImage} selectedImage={selectedImage} />
+          {pickedEmoji && <EmojiSticker imageSize={40} stickerSource={pickedEmoji} />}
+        </View>
       </View>
       {showAppOption ? (
         <View style={styles.optionsContainer}>
@@ -82,16 +108,22 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#2c2c2c', // Slightly lighter black for better contrast
+    backgroundColor: '#2c2c2c',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   imageContainer: {
     flex: 1,
     paddingTop: 88,
   },
+  imageWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   footerContainer: {
     flex: 1 / 3,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   optionsContainer: {
     position: 'absolute',
