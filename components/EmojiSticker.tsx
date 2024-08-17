@@ -1,27 +1,72 @@
-import { View, Image, StyleSheet, ImageSourcePropType } from 'react-native';
+import { View, ImageSourcePropType, StyleSheet } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 interface EmojiStickerProps {
   imageSize: number;
-  stickerSource: ImageSourcePropType; // Corrected type for image source
+  stickerSource: ImageSourcePropType; 
 }
 
 export default function EmojiSticker({ imageSize, stickerSource }: EmojiStickerProps) {
+  const scaleImage = useSharedValue(imageSize);
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+
+  // Drag gesture to move the sticker around
+  const dragGesture = Gesture.Pan().onChange((event) => {
+    translateX.value += event.changeX;
+    translateY.value += event.changeY;
+  });
+
+  // Double-tap gesture to scale the sticker
+  const doubleTapGesture = Gesture.Tap()
+    .numberOfTaps(2)
+    .onStart(() => {
+      if (scaleImage.value !== imageSize * 2) {
+        scaleImage.value = imageSize * 2;
+      } else {
+        scaleImage.value = imageSize;
+      }
+    });
+
+  // Combine drag and double-tap gestures
+  const combinedGesture = Gesture.Simultaneous(dragGesture, doubleTapGesture);
+
+  // Animated styles for position and scale
+  const containerStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { translateX: withSpring(translateX.value) },
+        { translateY: withSpring(translateY.value) },
+      ],
+    };
+  });
+
+  const imageStyle = useAnimatedStyle(() => {
+    return {
+      width: withSpring(scaleImage.value),
+      height: withSpring(scaleImage.value),
+    };
+  });
+
   return (
-    <View style={styles.stickerContainer}>
-      <Image
-        source={stickerSource}
-        resizeMode="contain"
-        style={{ width: imageSize, height: imageSize }}
-      />
-    </View>
+    <GestureDetector gesture={combinedGesture}>
+      <Animated.View style={[styles.stickerContainer, containerStyle]}>
+        <Animated.Image
+          source={stickerSource}
+          resizeMode="contain"
+          style={imageStyle}
+        />
+      </Animated.View>
+    </GestureDetector>
   );
 }
 
 const styles = StyleSheet.create({
   stickerContainer: {
-    position: 'absolute', // More flexible positioning
-    top: 0,
-    left: 0, // Positioned at top-left, but can be adjusted dynamically
-    zIndex: 10, // Ensures the sticker is on top
+    position: 'absolute',
+    top: 74,
+    left: -14,
+    zIndex: 10,
   },
 });
